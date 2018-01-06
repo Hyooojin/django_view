@@ -30,6 +30,7 @@ def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
 ```
 <br>
+
 * polls/urls.py
 
 ```python
@@ -73,6 +74,7 @@ def index(request):
     return HttpResponse("Hello, world! ")
 ```
 <br>
+
 * polls/urls.py
 
 ```python
@@ -112,6 +114,7 @@ def vote(request):
     return HttpResponse("vote page using HttpResponse")
 ```
 <br>
+
 * urls.py
 
 ```python
@@ -126,6 +129,7 @@ urlpattenrs=[
 ]
 ```
 <br>
+
 * 화면
 * `http://localhost:8000/polls`
 
@@ -133,18 +137,21 @@ urlpattenrs=[
 Hello, world!
 ```
 <br>
+
 * `http://localhost:8000/polls/detail`
 
 ```
 detail page using HttpResponse
 ```
 <br>
+
 * `http://localhost:8000/polls/results/`
 
 ```
 response page using valiable and HttpResponse.
 ```
 <br>
+
 * `http://localhost:8000/polls/vote/`
 
 ```
@@ -172,6 +179,7 @@ def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
 ```
 <br>
+
 * urls.py
 
 ```python
@@ -186,6 +194,7 @@ urlpatterns= [
 ]    
 ```
 <br>
+
 * 화면
 * `http://localhost:8000/polls/1/`
 
@@ -196,12 +205,14 @@ You're looking at question 1.
 # You're looking at question 2.
 ```
 <br>
+
 * `http://localhost:8000/polls/2/results/`
 
 ```
 Yor're looking at the results of question 2.
 ```
 <br>
+
 * `http://localhost:8000/polls/3/vote/`
 
 ```
@@ -282,6 +293,7 @@ b_question, a_question
 
 
 <br>
+
 * polls/templates/polls/index.html
   <p style="color:grey"> 탬플릿에 코드 입력</p>
 
@@ -297,6 +309,7 @@ b_question, a_question
 {% endif %}
 ```
 <br>
+
 * polls/views.py
   <p style="color:grey"> template을 이용하여 polls/views.py에 index view를 업데이트</p>
 
@@ -316,6 +329,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 ```
 <br>
+
 * 화면
 
 ```python
@@ -442,6 +456,7 @@ quesiton_id가 없을 경우, **예외처리**를 띄워주어야 한다. 따라
 만약 객체가 존재하지 않을 때 **get()**을 사용하여 Http404예외를 발생시키는 것은 자주 쓰이는 용법이다. 
 
 <br>
+
 * polls/views.py
 
 ```python
@@ -460,12 +475,14 @@ def detail(request, question_id):
     return render(request, 'polls.detail.html', {'question': question})
 ```
 <br>
+
 * polls/templates/polls/detail.html
 
 ```html
 {{question}}
 ```
 <br>
+
 * 화면
 
 > ```
@@ -483,6 +500,7 @@ def detail(request, question_id):
 
 **get_object_or_404()** 함수는 Django 모델을 첫번째 인자로 받고, 몇개의 키워드 인수를 모델 관리자의 get()함수에 넘긴다. 만약 객체가 존재하지 않을 경우, Http404예외를 발생시킨다.
 <br>
+
 * polls/views.py
 
 ```python
@@ -507,6 +525,7 @@ def detail(request, question_id):
 <strong> context 변수 question이 주어졌을 때, <br>
 polls/detail.html라는 template이 어떻게 될까?</strong>
 <br>
+
 * polls/templates/polls/detail.html
 
 ```python
@@ -567,6 +586,7 @@ polls/index.html template에 링크를 적으면, 이 링크는 부분적으로 
  <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
 ```
 <br>
+
 * polls/index.html
 
 {% url %} 태그로 하드코딩된 코드를 바꿔준다.
@@ -596,6 +616,7 @@ URLconf에 이름공간(namespace)를 추가
 
 polls/urls.py파일에 app_name을 추가하여 어플리케이션의 이름공간을 설정한다. 
 <br>
+
 * polls/urls.py
 
 ```python
@@ -612,6 +633,7 @@ urlpatterns = [
 ]
 ```
 <br>
+
 * polls/index.html template
 
 ```html
