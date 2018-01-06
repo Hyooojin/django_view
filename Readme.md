@@ -6,7 +6,19 @@ view를 추가 작성하는데서 계속해서 error가 나서 해보는 **djang
 
 주된 참고 페이지: [첫 번째 장고 앱 작성하기, part3](https://docs.djangoproject.com/ko/2.0/intro/tutorial03/)
 
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
 ### View Page 추가하기 
+
+<hr>
 
 * polls/views.py
 
@@ -216,8 +228,15 @@ You're voting on question 3.
 
 
 </details>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ### View가 할 수 있는 것들
+
+<hr>
 
 * 각 view는 요청된 페이지의 내용이 담긴 HttpResponse객체를 반환하거나,  Http404 같은 예외를 발생하게 한다.
 * <span style="color:tomato">자유롭게</span> view가 어떤 행동을 하도록 할 수 있다. 
@@ -229,9 +248,16 @@ You're voting on question 3.
 
 <p style="color:tomato">모든 Django는 <u>HttpResponse</u>객체나, 혹은 <u>예외(execption)</u>을 원한다.</p>
 
-
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ### 코드와 디자인을 분리, index.html
+
+<hr>
+
 view에서 <u>페이지의 디자인이 하드코딩</u> 되어있다면 문제가 생긴다.  만약 페이지가 보여지는 방식을 바꾸고 싶다면, python코드를 편집해야하는데.. 
 
 이때, <span style="color:tomato">view가 사용할 수 있는 탬플릿을 작성</span>하여, <span style="color:tomato">Python 코드로부터 디자인을 분리</span>하도록 Django의 탬플릿 시스템을 사용해 볼 것이다. 
@@ -251,7 +277,7 @@ def index(request):
     return HttpResponse(output)
 ```
 
-화면 
+* 화면 
 
 ```
 b_question, a_question
@@ -293,7 +319,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 ```
 
-화면
+* 화면
 
 ```python
 * b_question
@@ -375,8 +401,16 @@ def index(request):
 (request, template, context(optional))
 ```
 </details>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ### 404에러 
+
+<hr>
+
 detail view에서는 지정된 설문조사의 질문 내용을 보여준다. 
 
 * polls/views.py
@@ -492,7 +526,15 @@ context 변수 question이 주어졌을 때, polls/detail.html라는 template이
 > - 탐색에 실패하면 속성값으로 탐색한다.
 > - 속성탐색에도 실패하면 리스트의 인덱스 탐색을 시도한다.
 
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ### template에서 하드코딩된 URL 제거
+
+<hr>
 
 polls/index.html template에 링크를 적으면, 이 링크는 부분적으로 하드코딩된다.
 
@@ -586,6 +628,13 @@ app name을 추가하도록 한다.
 
 
 </details>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 # Django
 
@@ -594,23 +643,22 @@ app name을 추가하도록 한다.
 view 추가를 무사히 마쳤다. 
 따라서 form 만들기를 계속해서 진행!
 
-
 주된 참고 페이지: [첫 번째 장고 앱 작성하기, part4](https://docs.djangoproject.com/ko/2.0/intro/tutorial04/)
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ### 간단한 폼 만들기
+
+<hr>
 
 * polls/templates/polls/detail.html
 
 ```python
-<!--{{question}}-->
 <h1>{{ question.question_text }}</h1>
-<!--<ul>-->
-<!--{% for choice in question.choice_set.all %}-->
-    <!--<li>{{ choice.choice_text }}</li>-->
-<!--{% endfor %}-->
-<!--</ul>-->
 
-<!--간단한 form 만들기-->
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 <form action=" {% url 'polls:vote' question.id %}" method="post">
@@ -624,10 +672,15 @@ view 추가를 무사히 마쳤다.
 ```
 
 <span style="color:grey">아직 어떤식으로 작동하는지 잘 모르겠.. </span>
-
-
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ### vote method 구현
+
+<hr>
 
 * polls/views.py
 
