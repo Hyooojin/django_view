@@ -231,7 +231,7 @@ You're voting on question 3.
 
 
 
-### 코드와 디자인을 분리
+### 코드와 디자인을 분리, index.html
 view에서 <u>페이지의 디자인이 하드코딩</u> 되어있다면 문제가 생긴다.  만약 페이지가 보여지는 방식을 바꾸고 싶다면, python코드를 편집해야하는데.. 
 
 이때, <span style="color:tomato">view가 사용할 수 있는 탬플릿을 작성</span>하여, <span style="color:tomato">Python 코드로부터 디자인을 분리</span>하도록 Django의 탬플릿 시스템을 사용해 볼 것이다. 
@@ -350,6 +350,243 @@ def index(request):
     return HttpResponse(template.render(request))
 ```
 
+### 4. 지름길: render()
+`template`에 **context**를 채워넣어 표현한 결과를 HttpResponse 객체와 함께 돌려주는 구문은 자주 쓰는 용법이다. 따라서 Django는 이런 표현을 쉽게 표현할 수 있도록 단축 기능`shortcuts`을 제공
+
+* polls/views.py
+  index() view를 단축 기능으로 작성하기
+
+```python
+from django.shortcuts import render
+from .models import Question
+
+def index(request):
+    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    context = {'latest_question_list': latest_question_list}
+    return render(request, 'polls/index.html', context)
+
+```
+> 모든 view에 적용한다면, 더 이상 loader와 HttpResponse를 import하지 않아도 된다. 
+> render()함수는 request객체를 첫번째 인수로 받고, template 이름을 두번째 인수로 받으며, context 사전형 객체를 세번째 선택적 (optional)인수로 받는다. 
+> 인수로 지정된 context로 표현된 templte의 HttpResponse객체가 반환된다.
+
+* **render()함수의 인수**
+```
+(request, template, context(optional))
+```
+</details>
+
+### 404에러 
+detail view에서는 지정된 설문조사의 질문 내용을 보여준다. 
+
+* polls/views.py
+  view는 요청된 질문의 ID가 없을 경우, Http404예외를 발생시킨다.
+
+다음 구문을 추가
+```python
+from django.http import Http404
+
+def detail(request, question_id):
+    try:
+        question = Question.obejcts.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request, 'polls/details.html', {'question': question})
+
+```
+* polls/template/polls/detail.html
+
+```python
+{{question}}
+```
+<br>
+<br>
+<details>
+<summary>예외처리의 다른 방법</summary>
+quesiton_id가 없을 경우, **예외처리**를 띄워주어야 한다. 따라서 question_id가 없는 경우는 404에러를 일으키도록 명령한다. 
+
+에러를 일으키는 방법에는 여러길이 있다. 
+
+#### 1. 404에러 일으키기 1, get()
+
+만약 객체가 존재하지 않을 때 **get()**을 사용하여 Http404예외를 발생시키는 것은 자주 쓰이는 용법이다. 
+
+* polls/views.py
+
+```python
+from django.http import Http404
+
+from django.shortcuts import render
+from .models import Question
+
+def detail(request, question_id):
+    # question_id가 있는 경우
+    try:
+        question = Question.objects.get(pk=question_id)
+    # question_id가 없는 경우
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request, 'polls.detail.html', {'question': question})
+```
+
+* polls/templates/polls/detail.html
+
+```html
+{{question}}
+```
+
+* 화면
+
+> ```
+> a.question
+> b.question
+> ```
+>
+> a.question을 클릭하면 a.question이라는 문구가 나온다. 
+
+#### 2. 404 에러 일으키기 2, get_object_or_404() 
+
+객체가 존재하지 않을 때 get()을 사용해서 Http404예외를 발생시킬 수도 있다는 것을 알았다.
+
+하지만 Django에서는 단축 기능을 제공하고 있기도 하다. 
+
+**get_object_or_404()** 함수는 Django 모델을 첫번째 인자로 받고, 몇개의 키워드 인수를 모델 관리자의 get()함수에 넘긴다. 만약 객체가 존재하지 않을 경우, Http404예외를 발생시킨다.
+
+* polls/views.py
+
+```python
+from django.shortcuts import get_object_or_404, render
+from .models import Question
+
+def detail(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/details.html', {'question': question})
+```
+
+**get_list_or_404()**함수는 get()대신 filter()를 쓴다는 것이 다르다. 리스트가 비어있을 경우, Http404예외를 발생시킨다.
+
+</details>
+
+### Template 시스템 활용, 코드와 디자인을 분리, detail, results, vote
+
+context 변수 question이 주어졌을 때, polls/detail.html라는 template이 어떻게 될까?
+
+*polls/templates/polls/detail.html
+
+```python
+<h1>{{question.question_text}}</h1>
+<ul>
+{% for choice in question.choice_set.all%}
+	<li>{{choice.choice_text}}</li>
+{% endfor %}
+</ul>
+```
+
+> template시스템은 <u>변수의 속성에 접근하기 위해</u> 점-탐색(dot-lookup)문법을 사용한다.
+>
+> ```html
+> {{question.question_text}}
+> ```
+>
+> - question객체에 대해 사전형으로 탐색한다.
+> - 탐색에 실패하면 속성값으로 탐색한다.
+> - 속성탐색에도 실패하면 리스트의 인덱스 탐색을 시도한다.
+
+### template에서 하드코딩된 URL 제거
+
+polls/index.html template에 링크를 적으면, 이 링크는 부분적으로 하드코딩된다.
+
+```python
+<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+```
+
+하지만, **강력하게 결합된 하드코딩**된 접근방식의 문제는 수 많은 탬플릿을 가진 프로젝트들의 URL의 변경을 어렵게 한다. 
+
+<span sytle="color:red">{% url %} template 태그</span>를 사용한다. 이 태그를 사용하면 url설정에 정의된 특정한 URL 경로들의 `의존성`을 제거할 수 있다. 
+
+*<a href="http://smiler.tistory.com/entry/%EB%86%92%EC%9D%80-%EC%9D%91%EC%A7%91%EB%8F%84%EC%99%80-%EB%82%AE%EC%9D%80-%EA%B2%B0%ED%95%A9%EB%8F%84">의존성</a>: 낮은 결합도를 가진 프로그램 코드는 한 모듈 내의 에러가 다른 모듈에 영향을 미치는 파급효과의 최소화가 가능하며, 한 모듈의 변경이 다른 모듈에 큰 영향을 미치지 않고 모듈의 유지 보수 및 변경이 가능하다. 
+
+출처: [http://smiler.tistory.com/entry/높은-응집도와-낮은-결합도](http://smiler.tistory.com/entry/%EB%86%92%EC%9D%80-%EC%9D%91%EC%A7%91%EB%8F%84%EC%99%80-%EB%82%AE%EC%9D%80-%EA%B2%B0%ED%95%A9%EB%8F%84) [아직은 내가 쓴 글보다 퍼온 글이 훨씬 많음]
+
+<br>
+
+<br>
+
+<details>
+
+<summery>url 관련해서 결합도 낮추기</summery>
+
+#### 1. 강력하게 결합된 하드코딩된 접근방식을 바꾼다.
+
+* polls/index.html
+
+하드코딩되어있는 URL링크
+
+```python
+ <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+```
+
+* polls/index.html
+
+{% url %} 태그로 하드코딩된 코드를 바꿔준다.
+
+```python
+<li><a href="{% url 'detail' question.id %}">{{question.question_text}}</a></li>
+```
+
+polls/ulrs모듈에 서술된 URL의 정의를 탐색하는 식으로 동작한다. 'detail'이라는 이름의 URL이 어떻게 정의되어 있는지 확인할 수 있다. 
+
+> 만약 URL을 바꾸고 싶다면, 
+> polls/specifics/12/
+> polls/urls.py에서 바꿔준다.
+>
+> ```python
+> path('specifics/<int:question_id>', views.detail, name='detail'),
+> ```
+
+
+
+#### 2. App이 여러개일 때  URL 구별
+
+* Django project는 app이 몇개라도 올 수 있다. 
+* 같은 project에 위치한 app들의 url 구별
+
+URLconf에 이름공간(namespace)를 추가
+
+polls/urls.py파일에 app_name을 추가하여 어플리케이션의 이름공간을 설정한다. 
+
+* polls/urls.py
+
+```python
+from django.urls import path
+
+from . import views
+
+app_name = 'polls'
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('<int:question_id>/', views.detail, name='detail'),
+    path('<int:question_id>/results/', views.results, name='results'),
+    path('<int:question_id>/vote/', views.vote, name='vote'),
+]
+```
+
+* polls/index.html template
+
+```html
+<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+```
+
+app name을 추가하도록 한다.
+
+```python
+<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+```
+
 
 
 </details>
+
+
+
+### App이 여러개일  때 URL 구별
