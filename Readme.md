@@ -514,7 +514,7 @@ polls/index.html template에 링크를 적으면, 이 링크는 부분적으로 
 
 <details>
 
-<summery>url 관련해서 결합도 낮추기</summery>
+<summary>url 관련해서 결합도 낮추기</summary>
 
 #### 1. 강력하게 결합된 하드코딩된 접근방식을 바꾼다.
 
@@ -586,7 +586,3 @@ app name을 추가하도록 한다.
 
 
 </details>
-
-
-
-### App이 여러개일  때 URL 구별
