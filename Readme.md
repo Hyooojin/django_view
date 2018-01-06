@@ -586,3 +586,71 @@ app name을 추가하도록 한다.
 
 
 </details>
+
+# Django
+
+## Form
+
+view 추가를 무사히 마쳤다. 
+따라서 form 만들기를 계속해서 진행!
+
+
+주된 참고 페이지: [첫 번째 장고 앱 작성하기, part4](https://docs.djangoproject.com/ko/2.0/intro/tutorial04/)
+
+### 간단한 폼 만들기
+
+* polls/templates/polls/detail.html
+
+```python
+<!--{{question}}-->
+<h1>{{ question.question_text }}</h1>
+<!--<ul>-->
+<!--{% for choice in question.choice_set.all %}-->
+    <!--<li>{{ choice.choice_text }}</li>-->
+<!--{% endfor %}-->
+<!--</ul>-->
+
+<!--간단한 form 만들기-->
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action=" {% url 'polls:vote' question.id %}" method="post">
+{% csrf_token %}
+{% for choice in question.choice_set.all %}
+    <input type="radio" name="choice" id="choice{{forloop.couter}}" value="{{ choice.id }}"/>
+    <label for="choice{{forloop.couter}}">{{choice.choice_text}}</label><br/>
+{% endfor %}
+<input type="submit" value="vote"/>
+</form>
+```
+
+<span style="color:grey">아직 어떤식으로 작동하는지 잘 모르겠.. </span>
+
+
+
+### vote method 구현
+
+* polls/views.py
+
+```python
+from django.urls import reverse
+from django.http import HttpResponseRedirect, HttpResponse
+from .models import Choice, Question
+from django.shortcuts import get_object_or_404, render
+
+
+def vote(request, question_id):
+    # vote 함수 구현
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        return render(request, 'polls/detail.html', {
+            'question': question,
+            'error_message': "You didn't select a choice.",
+        })
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+        return HttpResponseRedirect(reverse('polls:results', args=(question_id,)))
+```
+
